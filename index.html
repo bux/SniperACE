@@ -10,30 +10,31 @@
 <script src="js/sniperApp.js"></script>
 <script src="js/sniperCalc.js"></script>
 </head>
-<body style="padding:10px 0" ng-app="sniperApp" ng-controller="SniperCalcCtrl">
+<body ng-app="sniperApp" ng-controller="SniperCalcCtrl">
 <div class="container">
     <div class="row">
-        <div class="col-12 col-lg-12">
+        <div class="col-md-12">
             <form>
                 <fieldset>
                     <legend>Weaponry:</legend>
                     <div class="form-group">
                         <label for="inputWeapon">Rifle:</label>
-                        <select id="inputWeapon" class="form-control" ng-model="activeWeapon" ng-Options="weapon.name for weapon in weapons">
-                        </select>
+                        <select id="inputWeapon" class="form-control" ng-model="activeWeapon" ng-Options="weapon.name for weapon in weapons"></select>
                     </div>
                     <div class="checkbox">
                         <label>
                             <input type="checkbox" ng-model="usingRangefinder">
-                            Using Rangefinder? (Don't compensate for eleveation levels)</label>
+                            Using Rangefinder? (Don't compensate for elevation)
+                        </label>
                     </div>
                     <div class="checkbox">
                         <label>
                             <input type="checkbox" ng-model="usingKestrel" disabled>
-                            Using Kestrel?</label>
+                            Using Kestrel?
+                        </label>
                     </div>
                 </fieldset>
-                <!-- ############## -->
+                
                 <fieldset>
                     <legend>Data:</legend>
                     <div class="form-group">
@@ -41,13 +42,13 @@
                         <input type="text" class="form-control" id="inputRange" placeholder="100" ng-model="range" integer>
                     </div>
                     <div class="row" ng-hide="usingRangefinder">
-                        <div class="col-6 col-lg-6">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="inputElevSh">Elevation shooter</label>
                                 <input type="text" class="form-control" id="inputElevSh" placeholder="50" ng-model="elevShooter" integer>
                             </div>
                         </div>
-                        <div class="col-6 col-lg-6">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label for="inputElevT">Elevation target</label>
                                 <input type="text" class="form-control" id="inputElevT" placeholder="25" ng-model="elevTarget" integer>
@@ -55,26 +56,27 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-5 col-lg-5">
+                        <div class="col-md-6">
                             <div class="form-group">
-                                <label for="inputWind">Wind m/s</label>
+                                <label for="inputWind">Crosswind m/s</label>
                                 <input type="text" class="form-control" id="inputWind" placeholder="4" ng-model="windStr" float>
                             </div>
                         </div>
                         <!--ng-hide="usingKestrel" -->
-                        <div class="col-7 col-lg-7">
+                        <div class="col-md-6">
                             <div class="form-group">
+                            <!-- Wind is blowing from left to right => negative MOA (vice versa) -->
                                 <label for="inputElevT">Wind Direction</label>
-                                <div class="btn-group" style="display:block">
-                                    <button type="button" class="btn btn-default" ng-click="prevWindDir()">&larr;</button>
-                                    <button type="button" style="width: 57px" class="btn btn-info" ng-bind="activeWindDir.text">&nbsp;N&nbsp;</button>
-                                    <button type="button" class="btn btn-default" ng-click="nextWindDir()">&rarr;</button>
-                                </div>
+                                <button type="button" style="width: 57px" class="btn btn-info btn-block" ng-bind-html-unsafe="activeWindDir.text" ng-click="nextWindDir()">&nbsp;</button>
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-default" ng-click="calc()">Calculate</button>
                 </fieldset>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-default" ng-click="calc()">Calculate</button>
+                    </div>
+                </div>
             </form>
         </div>
     </div>

@@ -1,5 +1,6 @@
 ﻿function SniperCalcCtrl($scope) {
 	// rangeTable.wind -> moa for wind at 4 m/s
+    // make that an external json file
 	$scope.weapons = [
 		{name:"AS50",  rangeTable:[
 			{range: 100, elevation: -12, wind: 0.4},
@@ -251,36 +252,25 @@
 
 	$scope.usingRangefinder = true;
 	$scope.usingKestrel = true;
-
-	$scope.windDirs = [
-		{text: "N", dir: 0},
-		{text: "NNE", dir: 30},
-		{text: "ENE", dir: 60},
-		{text: "E", dir: 90},
-		{text: "ESE", dir: 120},
-		{text: "SSE", dir: 150},
-		{text: "S", dir: 180},
-		{text: "SSW", dir: 210},
-		{text: "WSW", dir: 240},
-		{text: "W", dir: 270},
-		{text: "WNW", dir: 300},
-        {text: "NNW", dir: 330}
-	];
-	
-	$scope.easyWindDirs = [
-		{text: "E>W", dir: 90},
-		{text: "W>E", dir: 270}
-	];
-	
-	$scope.activeWindDir = $scope.easyWindDirs[0];
-	$scope.range = "";
+    
+    $scope.range = "";
 	
 	$scope.elevShooter = "";
 	$scope.elevTarget = "";
 	$scope.windStr = "";
-	
+		
+	$scope.elevationMoa = 0;
+	$scope.windMoa = 0;
+    
+    // wind direction
+	$scope.easyWindDirs = [
+		{text: "&rarr;", dir: 90},
+		{text: "&larr;", dir: 270}
+	];
+    $scope.activeWindDir = $scope.easyWindDirs[0];
 
-	
+    
+    // Functions
 	$scope.nextWindDir = function(){
 		var currentIndex = $scope.easyWindDirs.indexOf($scope.activeWindDir);
 		if (currentIndex === $scope.easyWindDirs.length - 1) {
@@ -290,26 +280,14 @@
 		}
 	};
 	
-	$scope.prevWindDir = function() {
-		var currentIndex = $scope.easyWindDirs.indexOf($scope.activeWindDir);
-		if (currentIndex === 0) {
-			$scope.activeWindDir = $scope.easyWindDirs[$scope.easyWindDirs.length - 1];
-		} else {
-			$scope.activeWindDir = $scope.easyWindDirs[currentIndex - 1];
-		}
-	};
-	
-	$scope.elevationMoa = 0;
-	$scope.windMoa = 0;
-	
 	$scope.calc = function (){
 		var range;
 		
 		if ($scope.usingRangefinder === true) {
 			range = $scope.range;
 		} else {
-			// pythagoras
-			// a² + b² = c³
+            // hard to get those values, the shooter did most likely approximated them by looking at his map
+			// pythagoras => a² + b² = c²
 
 			var a = $scope.range;
 			var b = Math.max($scope.elevShooter, $scope.elevTarget) - Math.min($scope.elevShooter, $scope.elevTarget);
@@ -317,62 +295,79 @@
 			range = Math.sqrt(Math.pow(a,2) + Math.pow(b,2));
 		}
 
-		// because we need to calculate the middle value
-		var bestRangeTable;
-		var nextRangeTable;
+		// because we need to calculate the mean value
+		var bestRangeTableMatch;
+		var nextRangeTableMatch;
 		
-		for (var i = 0; i < $scope.activeWeapon.rangeTable.length; i++) {
-			var currentRangeTable = $scope.activeWeapon.rangeTable[i];
-			if (currentRangeTable.range - range < 100 && currentRangeTable.range - range > -100 ) {
-				bestRangeTable = currentRangeTable;
-				if (i < $scope.activeWeapon.rangeTable.length - 1 && range >= bestRangeTable.range) {
-					nextRangeTable = $scope.activeWeapon.rangeTable[i + 1];
-				}
-				break;
-			}
-		}
+        // if the range is 100 or below, just use the first entry
+        if (range <= 100) {
+            bestRangeTableMatch = $scope.activeWeapon.rangeTable[0];
+            nextRangeTableMatch = $scope.activeWeapon.rangeTable[0];
+        } else {
+            
+            for (var i = 0; i < $scope.activeWeapon.rangeTable.length; i++) {
+            
+                var currentRangeTableValue = $scope.activeWeapon.rangeTable[i];
+                
+                // if the range has the same value as the current range table value use that entry
+                if (range === currentRangeTableValue.range) {
+                
+                    bestRangeTableMatch = currentRangeTableValue;
+                    nextRangeTableMatch = currentRangeTableValue;
+                    break;
+                    
+                } else if (range - currentRangeTableValue.range > 0 && range - currentRangeTableValue.range < 100 ) {
+                    
+                    bestRangeTableMatch = currentRangeTableValue
+                    
+                    // get the next entry in the range table array
+                    // if there's no next entry in the array the range is too far
+                    if (i < $scope.activeWeapon.rangeTable.length - 1) {
+                        nextRangeTableMatch = $scope.activeWeapon.rangeTable[i + 1];
+                    }
+                    break;
+                    
+                }
+                
+            }
+        }
 		
-		if (!!bestRangeTable && !! nextRangeTable) {
-			console.log(bestRangeTable);
-			console.log(nextRangeTable);
+		if (!!bestRangeTableMatch && !! nextRangeTableMatch) {
+			console.log(bestRangeTableMatch);
+			console.log(nextRangeTableMatch);
 			console.log(range);
 			
-			var deltaElevation = nextRangeTable.elevation - bestRangeTable.elevation;
-			var deltaRangeInPercent = (range - bestRangeTable.range) / 100;
-			var elevationMoa = bestRangeTable.elevation + (deltaElevation * deltaRangeInPercent);
+			var deltaElevation = nextRangeTableMatch.elevation - bestRangeTableMatch.elevation;
+			var deltaRangeInPercent = (range - bestRangeTableMatch.range) / 100;
+			var elevationMoa = bestRangeTableMatch.elevation + (deltaElevation * deltaRangeInPercent);
 			
 			$scope.elevationMoa = elevationMoa;
 			
 			
-			var deltaWind = nextRangeTable.wind - bestRangeTable.wind;
-			var windFor4ms = bestRangeTable.wind + (deltaWind * deltaRangeInPercent);
+			var deltaWind = nextRangeTableMatch.wind - bestRangeTableMatch.wind;
+			var windFor4ms = bestRangeTableMatch.wind + (deltaWind * deltaRangeInPercent);
 			
 			var finalWindMoa = windFor4ms / 4 * $scope.windStr;
 			
 			// so take windDir into account
 			
-			if ($scope.activeWindDir.text === "W") {
+			if ($scope.activeWindDir.text === $scope.easyWindDirs[0].text) {
 				finalWindMoa = finalWindMoa * (-1);
 			}
 			
 			$scope.windMoa = finalWindMoa;
 			
-			console.log("elevationMoa: " + elevationMoa);
-			console.log("finalWindMoa: " + finalWindMoa);
+			//console.log("elevationMoa: " + elevationMoa);
+			//console.log("finalWindMoa: " + finalWindMoa);
 			
 			$('#myModal').modal();
 			
-		} else if (!!bestRangeTable) {
-			console.log(bestRangeTable);
-			console.log(range);
 		} else {
-			console.log("außer reichweite");
+            // TODO: Make this pretty
+            var lastEntry = $scope.activeWeapon.rangeTable[$scope.activeWeapon.rangeTable.length - 1];
+			alert("Out of range.\nRange shouldn't be bigger than: " + lastEntry.range);
 		}
 		
-		
-		
 	};
-	
-	
 	
 }
