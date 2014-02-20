@@ -5,4 +5,4 @@ A small web app to calculate the MOA (Minute of arc) for different long range ri
 
 Made with smartphones and tablets in mind, so players don't have to Alt+Tab out of their game.
 
-Try it out: http://bux578.github.io/SniperACE/
+Try it out: http://jodav.github.io/SniperACE/
