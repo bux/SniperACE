@@ -1,0 +1,68 @@
+<div class="row">
+    <div class="col-md-12">
+        <form name="calculatorForm">
+            <fieldset>
+                <legend>Weaponry:</legend>
+                <div class="form-group">
+                    <label for="inputWeapon">Rifle:</label>
+                    <select id="inputWeapon" class="form-control" ng-model="activeWeapon" ng-Options="weapon.name for weapon in weapons"></select>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="usingRangefinder">
+                        Using Rangefinder? (Don't compensate for elevation)
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" ng-model="usingKestrel" disabled>
+                        Using Kestrel?
+                    </label>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <legend>Data:</legend>
+                <div class="form-group">
+                    <label for="inputRange">Range</label>
+                    <input type="number" class="form-control" id="inputRange" placeholder="100" ng-model="range" min="0" required>
+                </div>
+                <div class="row" ng-hide="usingRangefinder">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="inputElevSh">Elevation shooter</label>
+                            <input type="number" class="form-control" id="inputElevSh" placeholder="50" ng-model="elevShooter" min="0" ng-required="!usingRangefinder">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="inputElevT">Elevation target</label>
+                            <input type="number" class="form-control" id="inputElevT" placeholder="25" ng-model="elevTarget" min="0" ng-required="!usingRangefinder">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="inputWind">Crosswind m/s</label>
+                            <input type="number" step=0.01 class="form-control" id="inputWind" placeholder="4" ng-model="windStr" required>
+                        </div>
+                    </div>
+                    <!--ng-hide="usingKestrel" -->
+                    <div class="col-md-6">
+                        <div class="form-group">
+                        <!-- Wind is blowing from left to right => negative MOA (vice versa) -->
+                            <label for="inputElevT">Wind Direction</label>
+                            <button type="button" style="width: 57px" class="btn btn-default btn-block" ng-bind-html="activeWindDirText" ng-click="nextWindDir()">&nbsp;</button>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            <div class="row">
+                <div class="col-md-12">
+                    <button ng-disabled="!calculatorForm.$valid" type="submit" class="btn btn-success" ng-click="calculateMoa()">Calculate</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
