@@ -1,5 +1,7 @@
 # Sniper ACE
 
+## Archived
+
 A small web app to calculate the MOA (Minute of arc) for different long range guns in Bohemia Interactive's ARMA 2 game with the A.C.E. mod. Made with tablets and phones in mind, so that a spotter or the sniper himself doesn't need to leave the game.
 
 - It's free
